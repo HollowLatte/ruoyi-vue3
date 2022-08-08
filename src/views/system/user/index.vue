@@ -130,7 +130,7 @@
 
             <el-table v-loading="loading" :data="userList" @selection-change="handleSelectionChange">
                <el-table-column type="selection" width="50" align="center" />
-               <el-table-column label="用户编号" align="center" key="userId" prop="userId" v-if="columns[0].visible" />
+               <el-table-column label="用户编号" align="center" key="id" prop="id" v-if="columns[0].visible" />
                <el-table-column label="用户名称" align="center" key="userName" prop="userName" v-if="columns[1].visible" :show-overflow-tooltip="true" />
                <el-table-column label="用户昵称" align="center" key="nickName" prop="nickName" v-if="columns[2].visible" :show-overflow-tooltip="true" />
                <el-table-column label="部门" align="center" key="deptName" prop="dept.deptName" v-if="columns[3].visible" :show-overflow-tooltip="true" />
@@ -152,7 +152,7 @@
                </el-table-column>
                <el-table-column label="操作" align="center" width="150" class-name="small-padding fixed-width">
                   <template #default="scope">
-                     <el-tooltip content="修改" placement="top" v-if="scope.row.userId !== 1">
+                     <el-tooltip content="修改" placement="top" v-if="scope.row.id !== 1">
                         <el-button
                            type="text"
                            icon="Edit"
@@ -160,7 +160,7 @@
                            v-hasPermi="['system:user:edit']"
                         ></el-button>
                      </el-tooltip>
-                     <el-tooltip content="删除" placement="top" v-if="scope.row.userId !== 1">
+                     <el-tooltip content="删除" placement="top" v-if="scope.row.id !== 1">
                         <el-button
                            type="text"
                            icon="Delete"
@@ -168,7 +168,7 @@
                            v-hasPermi="['system:user:remove']"
                         ></el-button>
                      </el-tooltip>
-                     <el-tooltip content="重置密码" placement="top" v-if="scope.row.userId !== 1">
+                     <el-tooltip content="重置密码" placement="top" v-if="scope.row.id !== 1">
                         <el-button
                            type="text"
                            icon="Key"
@@ -176,7 +176,7 @@
                            v-hasPermi="['system:user:resetPwd']"
                         ></el-button>
                      </el-tooltip>
-                     <el-tooltip content="分配角色" placement="top" v-if="scope.row.userId !== 1">
+                     <el-tooltip content="分配角色" placement="top" v-if="scope.row.id !== 1">
                         <el-button
                            type="text"
                            icon="CircleCheck"
@@ -233,12 +233,12 @@
             </el-row>
             <el-row>
                <el-col :span="12">
-                  <el-form-item v-if="form.userId == undefined" label="用户名称" prop="userName">
+                  <el-form-item v-if="form.id == undefined" label="用户名称" prop="userName">
                      <el-input v-model="form.userName" placeholder="请输入用户名称" maxlength="30" />
                   </el-form-item>
                </el-col>
                <el-col :span="12">
-                  <el-form-item v-if="form.userId == undefined" label="用户密码" prop="password">
+                  <el-form-item v-if="form.id == undefined" label="用户密码" prop="password">
                      <el-input v-model="form.password" placeholder="请输入用户密码" type="password" maxlength="20" show-password />
                   </el-form-item>
                </el-col>
@@ -269,19 +269,6 @@
                </el-col>
             </el-row>
             <el-row>
-               <el-col :span="12">
-                  <el-form-item label="岗位">
-                     <el-select v-model="form.postIds" multiple placeholder="请选择">
-                        <el-option
-                           v-for="item in postOptions"
-                           :key="item.postId"
-                           :label="item.postName"
-                           :value="item.postId"
-                           :disabled="item.status == 1"
-                        ></el-option>
-                     </el-select>
-                  </el-form-item>
-               </el-col>
                <el-col :span="12">
                   <el-form-item label="角色">
                      <el-select v-model="form.roleIds" multiple placeholder="请选择">
@@ -351,8 +338,7 @@
 <script setup name="User">
 import { getToken } from "@/utils/auth";
 import { treeselect } from "@/api/system/dept";
-import { changeUserStatus, listUser, resetUserPwd, delUser, getUser, updateUser, addUser } from "@/api/system/user";
-
+import userApi from "@api/system/user";
 const router = useRouter();
 const { proxy } = getCurrentInstance();
 const { sys_normal_disable, sys_user_sex } = proxy.useDict("sys_normal_disable", "sys_user_sex");
@@ -370,7 +356,6 @@ const dateRange = ref([]);
 const deptName = ref("");
 const deptOptions = ref(undefined);
 const initPassword = ref(undefined);
-const postOptions = ref([]);
 const roleOptions = ref([]);
 /*** 用户导入参数 */
 const upload = reactive({
@@ -437,7 +422,7 @@ function getTreeselect() {
 /** 查询用户列表 */
 function getList() {
   loading.value = true;
-  listUser(proxy.addDateRange(queryParams.value, dateRange.value)).then(res => {
+  userApi.listUser(proxy.addDateRange(queryParams.value, dateRange.value)).then(res => {
     loading.value = false;
     userList.value = res.rows;
     total.value = res.total;
@@ -463,7 +448,7 @@ function resetQuery() {
 function handleDelete(row) {
   const userIds = row.userId || ids.value;
   proxy.$modal.confirm('是否确认删除用户编号为"' + userIds + '"的数据项？').then(function () {
-    return delUser(userIds);
+    return userApi.delUser(userIds);
   }).then(() => {
     getList();
     proxy.$modal.msgSuccess("删除成功");
@@ -479,7 +464,7 @@ function handleExport() {
 function handleStatusChange(row) {
   let text = row.status === "0" ? "启用" : "停用";
   proxy.$modal.confirm('确认要"' + text + '""' + row.userName + '"用户吗?').then(function () {
-    return changeUserStatus(row.userId, row.status);
+    return userApi.changeUserStatus(row.id, row.status);
   }).then(() => {
     proxy.$modal.msgSuccess(text + "成功");
   }).catch(function () {
@@ -501,7 +486,7 @@ function handleCommand(command, row) {
 };
 /** 跳转角色分配 */
 function handleAuthRole(row) {
-  const userId = row.userId;
+  const userId = row.id;
   router.push("/system/user-auth/role/" + userId);
 };
 /** 重置密码按钮操作 */
@@ -513,14 +498,14 @@ function handleResetPwd(row) {
     inputPattern: /^.{5,20}$/,
     inputErrorMessage: "用户密码长度必须介于 5 和 20 之间",
   }).then(({ value }) => {
-    resetUserPwd(row.userId, value).then(response => {
+    userApi.resetUserPwd(row.id, value).then(response => {
       proxy.$modal.msgSuccess("修改成功，新密码是：" + value);
     });
   }).catch(() => {});
 };
 /** 选择条数  */
 function handleSelectionChange(selection) {
-  ids.value = selection.map(item => item.userId);
+  ids.value = selection.map(item => item.id);
   single.value = selection.length != 1;
   multiple.value = !selection.length;
 };
@@ -562,7 +547,7 @@ function initTreeData() {
 /** 重置操作表单 */
 function reset() {
   form.value = {
-    userId: undefined,
+    id: undefined,
     deptId: undefined,
     userName: undefined,
     nickName: undefined,
@@ -572,7 +557,6 @@ function reset() {
     sex: undefined,
     status: "0",
     remark: undefined,
-    postIds: [],
     roleIds: []
   };
   proxy.resetForm("userRef");
@@ -586,8 +570,7 @@ function cancel() {
 function handleAdd() {
   reset();
   initTreeData();
-  getUser().then(response => {
-    postOptions.value = response.posts;
+  userApi.getUser().then(response => {
     roleOptions.value = response.roles;
     open.value = true;
     title.value = "添加用户";
@@ -598,12 +581,10 @@ function handleAdd() {
 function handleUpdate(row) {
   reset();
   initTreeData();
-  const userId = row.userId || ids.value;
-  getUser(userId).then(response => {
+  const userId = row.id || ids.value;
+  userApi.getUser(userId).then(response => {
     form.value = response.data;
-    postOptions.value = response.posts;
     roleOptions.value = response.roles;
-    form.value.postIds = response.postIds;
     form.value.roleIds = response.roleIds;
     open.value = true;
     title.value = "修改用户";
@@ -614,14 +595,14 @@ function handleUpdate(row) {
 function submitForm() {
   proxy.$refs["userRef"].validate(valid => {
     if (valid) {
-      if (form.value.userId != undefined) {
-        updateUser(form.value).then(response => {
+      if (form.value.id != undefined) {
+        userApi.updateUser(form.value).then(response => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
           getList();
         });
       } else {
-        addUser(form.value).then(response => {
+        userApi.addUser(form.value).then(response => {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
           getList();

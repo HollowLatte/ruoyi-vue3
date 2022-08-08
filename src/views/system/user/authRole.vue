@@ -46,7 +46,7 @@
 </template>
 
 <script setup name="AuthRole">
-import { getAuthRole, updateAuthRole } from "@/api/system/user";
+import userApi from "@api/system/user";
 
 const route = useRoute();
 const { proxy } = getCurrentInstance();
@@ -84,7 +84,7 @@ function close() {
 function submitForm() {
   const userId = form.value.userId;
   const rIds = roleIds.value.join(",");
-  updateAuthRole({ userId: userId, roleIds: rIds }).then(response => {
+  userApi.updateAuthRole({ userId: userId, roleIds: rIds }).then(response => {
     proxy.$modal.msgSuccess("授权成功");
     close();
   });
@@ -94,7 +94,7 @@ function submitForm() {
   const userId = route.params && route.params.userId;
   if (userId) {
     loading.value = true;
-    getAuthRole(userId).then(response => {
+    userApi.getAuthRole(userId).then(response => {
       form.value = response.user;
       roles.value = response.roles;
       total.value = roles.value.length;
