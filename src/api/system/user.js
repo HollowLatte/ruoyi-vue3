@@ -44,9 +44,9 @@ export default {
   },
 
   // 用户密码重置
-  resetUserPwd(userId, password) {
+  resetUserPwd(id, password) {
     const data = {
-      userId,
+      id,
       password
     }
     return request({
