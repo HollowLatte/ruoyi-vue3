@@ -53,7 +53,7 @@
 <script setup>
 import "vue-cropper/dist/index.css";
 import { VueCropper } from "vue-cropper";
-import { uploadAvatar } from "@/api/system/user";
+import userApi from "@api/system/user";
 import useUserStore from '@/store/modules/user'
 
 const userStore = useUserStore()
@@ -114,7 +114,7 @@ function uploadImg() {
   proxy.$refs.cropper.getCropBlob(data => {
     let formData = new FormData();
     formData.append("avatarfile", data);
-    uploadAvatar(formData).then(response => {
+    userApi.uploadAvatar(formData).then(response => {
       open.value = false;
       options.img = response.imgUrl;
       userStore.avatar = options.img;

@@ -2,9 +2,9 @@
 <template>
    <div class="app-container">
       <el-form :model="queryParams" ref="queryRef" v-show="showSearch" :inline="true">
-         <el-form-item label="用户名称" prop="userName">
+         <el-form-item label="用户名称" prop="username">
             <el-input
-               v-model="queryParams.userName"
+               v-model="queryParams.username"
                placeholder="请输入用户名称"
                clearable
                style="width: 240px"
@@ -47,9 +47,9 @@
             >批量取消授权</el-button>
          </el-col>
          <el-col :span="1.5">
-            <el-button 
-               type="warning" 
-               plain 
+            <el-button
+               type="warning"
+               plain
                icon="Close"
                @click="handleClose"
             >关闭</el-button>
@@ -59,8 +59,8 @@
 
       <el-table v-loading="loading" :data="userList" @selection-change="handleSelectionChange">
          <el-table-column type="selection" width="55" align="center" />
-         <el-table-column label="用户名称" prop="userName" :show-overflow-tooltip="true" />
-         <el-table-column label="用户昵称" prop="nickName" :show-overflow-tooltip="true" />
+         <el-table-column label="用户名称" prop="username" :show-overflow-tooltip="true" />
+         <el-table-column label="用户昵称" prop="nickname" :show-overflow-tooltip="true" />
          <el-table-column label="邮箱" prop="email" :show-overflow-tooltip="true" />
          <el-table-column label="手机" prop="phonenumber" :show-overflow-tooltip="true" />
          <el-table-column label="状态" align="center" prop="status">
@@ -115,7 +115,7 @@ const queryParams = reactive({
   pageNum: 1,
   pageSize: 10,
   roleId: route.params.roleId,
-  userName: undefined,
+  username: undefined,
   phonenumber: undefined,
 });
 
@@ -154,7 +154,7 @@ function openSelectUser() {
 }
 /** 取消授权按钮操作 */
 function cancelAuthUser(row) {
-  proxy.$modal.confirm('确认要取消该用户"' + row.userName + '"角色吗？').then(function () {
+  proxy.$modal.confirm('确认要取消该用户"' + row.username + '"角色吗？').then(function () {
     return authUserCancel({ userId: row.userId, roleId: queryParams.roleId });
   }).then(() => {
     getList();

@@ -114,11 +114,11 @@ export default {
   },
 
   // 保存授权角色
-  updateAuthRole(data) {
+  updateAuthRole(userId, data) {
     return request({
-      url: '/system/user/authRole',
+      url: '/system/user/authRole/' + userId,
       method: 'put',
-      params: data
+      data: data
     })
   }
 }

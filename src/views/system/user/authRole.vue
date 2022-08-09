@@ -4,13 +4,13 @@
       <el-form :model="form" label-width="80px">
          <el-row>
             <el-col :span="8" :offset="2">
-               <el-form-item label="用户昵称" prop="nickName">
-                  <el-input v-model="form.nickName" disabled />
+               <el-form-item label="用户昵称" prop="nickname">
+                  <el-input v-model="form.nickname" disabled />
                </el-form-item>
             </el-col>
             <el-col :span="8" :offset="2">
-               <el-form-item label="登录账号" prop="userName">
-                  <el-input v-model="form.userName" disabled />
+               <el-form-item label="登录账号" prop="username">
+                  <el-input v-model="form.username" disabled />
                </el-form-item>
             </el-col>
          </el-row>
@@ -58,8 +58,8 @@ const pageSize = ref(10);
 const roleIds = ref([]);
 const roles = ref([]);
 const form = ref({
-  nickName: undefined,
-  userName: undefined,
+  nickname: undefined,
+  username: undefined,
   userId: undefined
 });
 
@@ -82,9 +82,8 @@ function close() {
 };
 /** 提交按钮 */
 function submitForm() {
-  const userId = form.value.userId;
-  const rIds = roleIds.value.join(",");
-  userApi.updateAuthRole({ userId: userId, roleIds: rIds }).then(response => {
+  const userId = form.value.id;
+  userApi.updateAuthRole(userId, roleIds.value ).then(response => {
     proxy.$modal.msgSuccess("授权成功");
     close();
   });
