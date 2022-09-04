@@ -148,8 +148,8 @@
             <template #default="scope">
               <el-switch
                   v-model="scope.row.status"
-                  active-value="0"
-                  inactive-value="1"
+                  :active-value=1
+                  :inactive-value=0
                   @change="handleStatusChange(scope.row)"
               ></el-switch>
             </template>
@@ -272,7 +272,7 @@
                 <el-radio
                     v-for="dict in sys_normal_disable"
                     :key="dict.value"
-                    :label="dict.value"
+                    :label="parseInt(dict.value)"
                 >{{ dict.label }}
                 </el-radio>
               </el-radio-group>
@@ -498,13 +498,13 @@ function handleExport() {
 
 /** 用户状态修改  */
 function handleStatusChange(row) {
-  let text = row.status === "0" ? "启用" : "停用";
+  let text = row.status == 1 ? "启用" : "停用";
   proxy.$modal.confirm('确认要"' + text + '""' + row.username + '"用户吗?').then(function () {
     return userApi.changeUserStatus(row.id, row.status);
   }).then(() => {
     proxy.$modal.msgSuccess(text + "成功");
   }).catch(function () {
-    row.status = row.status === "0" ? "1" : "0";
+    row.status = row.status == 1 ? 0 : 1;
   });
 };
 
@@ -600,7 +600,7 @@ function reset() {
     phonenumber: undefined,
     email: undefined,
     sex: undefined,
-    status: "0",
+    status: 1,
     remark: undefined,
     roleIds: []
   };
